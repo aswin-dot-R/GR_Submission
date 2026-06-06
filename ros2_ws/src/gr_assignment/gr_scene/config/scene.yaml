@@ -1,0 +1,16 @@
+scene_loader:
+  ros__parameters:
+    frame_id: "base_link"
+    # PRACTICAL MOUNT: the arm is bolted ON the countertop, with the WHOLE base
+    # sitting on the slab (same z). The 120x60 cm slab spans x=-0.20..1.00, so the
+    # base (at x=0) rests ~0.20 m in from the near edge with counter all around it.
+    # countertop slab — 120x60x4 cm. Top surface at z=0 (= the robot base level), so
+    # the base sits FLUSH ON the slab (no floating). pose_z = 0 - 0.04/2 = -0.02.
+    scene.countertop.size: [1.20, 0.60, 0.04]
+    scene.countertop.pose: [0.40, 0.00, -0.02]
+    # faucet post — 6x6x15 cm — sits ON the slab (base at z=0), centred under the mirror.
+    scene.faucet.size:     [0.06, 0.06, 0.15]
+    scene.faucet.pose:     [0.40, 0.00, 0.075]
+    # mirror pane — 2x90x60 cm — stands ON the slab (bottom at z=0), at x=0.45 (in reach).
+    scene.mirror.size:     [0.02, 0.90, 0.60]
+    scene.mirror.pose:     [0.45, 0.00, 0.30]

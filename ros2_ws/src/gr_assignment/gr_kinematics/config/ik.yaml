@@ -1,0 +1,7 @@
+gr_ik_service:
+  ros__parameters:
+    planning_group: "arm"
+    tip_link: "link6"
+    timeout_s: 0.05
+    attempts: 5
+    avoid_collisions: true

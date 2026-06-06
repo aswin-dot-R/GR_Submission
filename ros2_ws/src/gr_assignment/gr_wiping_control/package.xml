@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>gr_wiping_control</name>
+  <version>0.1.0</version>
+  <description>Contact-aware wiping controller for GR Assignment Section 3 (Isaac Sim ROS 2 Bridge)</description>
+  <maintainer email="aswinrajan2002@gmail.com">ashie</maintainer>
+  <license>MIT</license>
+
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>trajectory_msgs</depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-matplotlib</exec_depend>
+  <!-- Section 3 Gazebo demo -->
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_ros2_control</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>joint_trajectory_controller</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>force_torque_sensor_broadcaster</exec_depend>
+  <exec_depend>piper_description</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

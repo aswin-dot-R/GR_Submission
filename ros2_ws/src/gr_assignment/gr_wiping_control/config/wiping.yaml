@@ -1,0 +1,86 @@
+wiping_controller:
+  ros__parameters:
+    # ---- which surface (sets force/speed targets) ----
+    active_surface: "counter"
+
+    # ---- assignment-spec setpoints ----
+    counter.target_force_n:   10.0   # N (|Fn|, ±2 N)
+    counter.force_tol_n:       2.0
+    counter.speed_min_mps:     0.15
+    counter.speed_max_mps:     0.25
+    mirror.target_force_n:     6.0    # N (±1.5 N)
+    mirror.force_tol_n:        1.5
+    mirror.speed_min_mps:      0.10
+    mirror.speed_max_mps:      0.20
+
+    # ---- mode-switch thresholds ----
+    contact_threshold_n:       2.0    # |Fn| > 2 N -> force control
+    backoff_threshold_n:      15.0    # |Fn| > 15 N -> retract
+
+    # ---- topics (Gazebo Harmonic bringup) ----
+    topics.ft_wrench:    "/tcp_fts_broadcaster/wrench"    # WrenchStamped (gz FT broadcaster)
+    topics.joint_states: "/joint_states"
+    topics.joint_cmd:    "/arm_controller/joint_trajectory"
+
+    # ---- kinematics ----
+    base_link: "base_link"
+    tip_link:  "link6"
+    tool_length_m: 0.02        # link6 origin -> pad contact face (pad mounted flush)
+    tool_yaw_deg:  150.0       # roll about surface normal (counter: reaches well)
+
+    # ---- area raster wipe (ONE boustrophedon pass, 10% overlap) ----
+    # region center + extents on the counter (base_link frame; surface z=0). The
+    # pad (50 mm short edge) steps by pad*(1-overlap) between strokes.
+    wipe.center:       [0.25, 0.00, 0.0]   # reachable front-counter patch
+    wipe.size_u:       0.26                # extent along u (x) — stroke length (bigger sweep)
+    wipe.size_v:       0.40                # extent along v (y) — stepped across (wide sweep)
+    wipe.pad_swath:    0.05                # pad edge used as swath (m)
+    wipe.overlap:      0.10                # 10% overlap between strokes
+    stroke.approach_z: 0.12
+
+    # ---- mirror wipe region (used when active_surface: "mirror") ----
+    # The mirror is left where the scene/world place it (pane face x=0.44, centre
+    # z=0.30); we only raster a reachable patch on that existing vertical face.
+    # u = y (horizontal across pane), v = z (vertical). The controller presses
+    # along the pane normal (-x) and holds the mirror force target (6 N).
+    mirror.tool_yaw_deg: 0.0
+    mirror.wipe.center:  [0.44, -0.02, 0.33]   # pane face x=0.45-0.01 (in reach)
+    mirror.wipe.size_u:  0.10
+    mirror.wipe.size_v:  0.10
+
+    # ---- admittance gains / motion ----
+    # The sim contact is rigid, so position control can't hold a steady force
+    # (it slams between 0 and >300 N). For the motion/coverage demo we GRAZE:
+    # kp=0 freezes the push depth at 0 so the pad rides the surface in a smooth
+    # raster (no slam). True 10 N force-holding needs the ros2_control
+    # admittance_controller (compliance) — documented in WIPING_NOTES.
+    force.kp:        0.0
+    force.ki:        0.0
+    force.max_step_m: 0.0
+    descend_speed_mps: 0.015
+    control_rate_hz:  100.0
+
+    # ---- contact model ----
+    # "graze"      : freeze depth (kp=0), pad rides the surface (motion demo).
+    # "admittance" : virtual spring-mass-damper on the force error drives the
+    #                commanded penetration. With the COMPLIANT TOOL (sprung pad,
+    #                500 N/m) the force-penetration slope is gentle (10 N at 20 mm),
+    #                so the loop resolves and HOLDS target. depth_max must allow the
+    #                ~F/k penetration (10 N/500 = 20 mm); small K keeps steady error
+    #                low; D damps; vmax caps approach speed.
+    contact_model:     "graze"
+    admit.mass:        0.5
+    admit.damping:     60.0
+    admit.stiffness:   20.0
+    admit.max_rate_mps: 0.03
+    admit.depth_min:  -0.02
+    admit.depth_max:   0.03
+
+    # ---- obstacle (faucet) skip ----
+    obstacle.center:        [0.40, 0.00]   # faucet kept within reach near the slab front
+    obstacle.skip_radius_m:  0.08
+    obstacle.lift_m:         0.06
+
+    # ---- logging ----
+    log.csv_path: "/home/dev/data/wiping_log.csv"
+    log.png_path: "/home/dev/data/wiping_log.png"

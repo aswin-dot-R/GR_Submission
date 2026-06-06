@@ -1,0 +1,25 @@
+reachability_sweep:
+  ros__parameters:
+    reachability.planning_group: "arm"
+    reachability.base_frame:     "base_link"
+    reachability.tip_link:       "link6"
+    # 60x60 cm patch, sampled at 2 cm => 31x31 = 961 cells. Shifted IN toward the
+    # base (x_center 0.22) so it spans the near-base field where the arm folds and
+    # passes through shoulder/elbow singularities (visible as low-manipulability bands).
+    reachability.patch.x_center:  0.22
+    reachability.patch.y_center:  0.00
+    reachability.patch.width:     0.60
+    reachability.patch.height:    0.60
+    reachability.patch.resolution: 0.02
+    reachability.patch.z_offset:   0.02
+    # Base "tool-down" orientation: tool z points -world z (= surface normal of the
+    # horizontal counter). Quaternion (w,x,y,z) for 180° about x. yaw=0 reference.
+    reachability.tool_orientation_wxyz: [0.0, 1.0, 0.0, 0.0]
+    # "Surface-aligned" pins only the tool's APPROACH AXIS to the surface normal;
+    # the yaw about that axis is a FREE DOF for a flat wiping pad. We search this
+    # many yaw angles per cell and mark the cell reachable if ANY yaw solves IK.
+    # (Pinning yaw to a single value reports only 3.5% reachable for the Piper;
+    #  freeing it gives ~54% — the honest surface-aligned workspace.)
+    reachability.yaw_samples: 12
+    reachability.output.csv_path: "/home/dev/data/reachability.csv"
+    reachability.output.png_path: "/home/dev/data/reachability.png"

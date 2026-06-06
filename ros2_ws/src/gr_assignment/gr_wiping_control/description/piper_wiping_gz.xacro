@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot
+  name="piper"
+  xmlns:xacro="http://ros.org/wiki/xacro">
+<!-- world -->
+  <link name="world"/>
+  <joint name="fixed_base_joint" type="fixed">
+      <parent link="world"/>
+      <child link="base_link"/>
+  </joint>
+<!-- arm -->
+<link
+    name="base_link">
+    <inertial>
+            <origin xyz="-0.00473641164191482 2.56829134630247E-05 0.041451518036016" rpy="0 0 0" />
+            <mass value="1.02" />
+            <inertia ixx="0.00267433" ixy="-0.00000073" ixz="-0.00017389" iyy="0.00282612" iyz="0.0000004" izz="0.00089624" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="link1">
+    <inertial>
+      <origin xyz="0.00032 -0.00041 -0.00348" rpy="0 0 0" />
+      <mass value="0.71" />
+      <inertia ixx="0.00050027" ixy="0.00000078" ixz="0.00000626" iyy="0.00040879" iyz="0.00000462" izz="0.00045802" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint1"
+    type="revolute">
+    <origin
+      xyz="0 0 0.123"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-2.618"
+      upper="2.618"
+      effort="100"
+      velocity="5" />
+  </joint>
+  <link
+    name="link2">
+    <inertial>
+      <origin xyz="0.21852 -0.00861 0.00126" rpy="0 0 0" />
+      <mass value="1.16" />
+      <inertia ixx="0.00111915" ixy="0.00182916" ixz="0.00019233" iyy="0.06763251" iyz="0.00000767" izz="0.067559" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint2"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="1.5708 -0.1359 -3.1416" />
+      <!-- rpy="1.5708 -0.10095-0.03490659 -3.1416" /> -->
+    <parent
+      link="link1" />
+    <child
+      link="link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="3.14"
+      effort="100"
+      velocity="5" />
+  </joint>
+  <link
+    name="link3">
+    <inertial>
+      <origin xyz="-0.01999 -0.14808 -0.00053" rpy="0 0 0" />
+      <mass value="0.5" />
+      <inertia ixx="0.01347608" ixy="0.00161034" ixz="0.00000066" iyy="0.00046377" iyz="0.00000162" izz="0.01363321" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint3"
+    type="revolute">
+    <origin
+      xyz="0.28503 0 0"
+      rpy="0 0 -1.7939" />
+      <!-- rpy="0 0 -1.759-0.03490659" /> -->
+    <parent
+      link="link2" />
+    <child
+      link="link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-2.967"
+      upper="0"
+      effort="100"
+      velocity="5" />
+  </joint>
+  <link
+    name="link4">
+    <inertial>
+      <origin xyz="0.00013 -0.00076 -0.00394" rpy="0 0 0" />
+      <mass value="0.38" />
+      <inertia ixx="0.00017844" ixy="0.00000062" ixz="0.00000067" iyy="0.00018914" iyz="0.00000408" izz="0.00014613" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint4"
+    type="revolute">
+    <origin
+      xyz="-0.021984 -0.25075 0"
+      rpy="1.5708 0 0" />
+    <parent
+      link="link3" />
+    <child
+      link="link4" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1.745"
+      upper="1.745"
+      effort="100"
+      velocity="5" />
+  </joint>
+  <link
+    name="link5">
+    <inertial>
+      <origin xyz="0.00018 -0.06104 -0.00227" rpy="0 0 0" />
+      <mass value="0.383" />
+      <inertia ixx="0.00172318" ixy="0.00000259" ixz="0.00000010" iyy="0.00017936" iyz="0.00000990" izz="0.00171172" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link5.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link5.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint5"
+    type="revolute">
+    <origin
+      xyz="0 0 0"
+      rpy="-1.5708 0 0" />
+    <parent
+      link="link4" />
+    <child
+      link="link5" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-1.22"
+      upper="1.22"
+      effort="100"
+      velocity="5" />
+  </joint>
+  <link
+    name="link6">
+    <inertial>
+      <origin xyz="-0.00003 0.00006 0.04618" rpy="0 0 0" />
+      <mass value="0.007" />
+      <inertia ixx="0.00152112" ixy="0.00000202" ixz="0.00000261" iyy="0.00138626" iyz="0.00000002" izz="0.00031152" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link6.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find piper_description)/meshes/link6.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint6"
+    type="revolute">
+    <origin
+      xyz="8.8259E-05 -0.091 0"
+      rpy="1.5708 0 0" />
+    <parent
+      link="link5" />
+    <child
+      link="link6" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-2.0944"
+      upper="2.0944"
+      effort="100"
+      velocity="3" />
+  </joint>
+
+  <!-- <gazebo reference="base_link">
+      <material>Gazebo/Black</material>
+      <gravity>true</gravity>
+      <selfCollide>false</selfCollide>
+  </gazebo>
+  <gazebo reference="link1">
+      <material>Gazebo/Gray</material>
+      <selfCollide>false</selfCollide>
+  </gazebo>
+  <gazebo reference="link2">
+      <material>Gazebo/Red</material>
+      <selfCollide>false</selfCollide>
+  </gazebo>
+  <gazebo reference="link3">
+      <material>Gazebo/Blue</material>
+  </gazebo>
+  <gazebo reference="link4">
+      <material>Gazebo/Green</material>
+  </gazebo>
+  <gazebo reference="link5">
+      <material>Gazebo/Yellow</material>
+  </gazebo>
+  <gazebo reference="link6">
+      <material>Gazebo/Orange</material>
+  </gazebo>-->
+
+  <ros2_control name="GazeboSystem" type="system">
+      <hardware>
+          <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      </hardware>
+      <joint name="joint1">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <state_interface name="position">
+              <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+      </joint>
+      <joint name="joint2">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <state_interface name="position">
+              <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+      </joint>
+      <joint name="joint3">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <state_interface name="position">
+              <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+      </joint>
+      <joint name="joint4">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <state_interface name="position">
+              <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+      </joint>
+      <joint name="joint5">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <state_interface name="position">
+              <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+      </joint>
+      <joint name="joint6">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <state_interface name="position">
+              <param name="initial_value">0.0</param>
+          </state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+      </joint>
+      <!-- Harmonic: gz_ros2_control exposes a force_torque sensor as a state
+           interface (linked by name to the gz <sensor> on tool_joint below),
+           which force_torque_sensor_broadcaster then publishes as /wrist_ft. -->
+      <sensor name="tcp_fts">
+          <state_interface name="force.x"/>
+          <state_interface name="force.y"/>
+          <state_interface name="force.z"/>
+          <state_interface name="torque.x"/>
+          <state_interface name="torque.y"/>
+          <state_interface name="torque.z"/>
+      </sensor>
+  </ros2_control>
+
+  <!-- ===================== Section 3 additions ===================== -->
+  <!-- Wiping pad (tool) rigidly attached to the wrist. The 100x50 mm pad from
+       the assignment; thin box so its lower face contacts the surface. -->
+  <link name="tool_link">
+    <inertial>
+      <mass value="0.05"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-4" ixy="0" ixz="0" iyy="1e-4" iyz="0" izz="1e-4"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.10 0.05 0.02"/></geometry>
+      <!-- semi-transparent so the wiping pad doesn't occlude the wrist/end-effector -->
+      <material name="pad"><color rgba="0.1 0.6 0.9 0.45"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.10 0.05 0.02"/></geometry>
+    </collision>
+  </link>
+  <!-- Compliant tool (Section 3 force control): the pad floats on a prismatic
+       SPRING-DAMPER along the tool z-axis instead of being rigidly bolted on.
+       Pressing the arm down compresses the spring; the contact force is then
+       K*compression on a GENTLE slope (500 N/m -> 10 N at 20 mm), which the wrist
+       FT measures and the admittance loop can resolve and HOLD. (A rigid mount on
+       DART's ~390 N/mm contact quantises force to tens of N and jams — measured.)
+       The joint is PASSIVE: it is deliberately NOT in <ros2_control>, so gz/DART
+       simulates its spring stiffness + damping. +z points toward the surface, so
+       compression is negative travel; the spring (reference 0) then pushes the pad
+       back onto the surface with force = K*|travel| = the contact force. -->
+  <joint name="tool_joint" type="prismatic">
+    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+    <parent link="link6"/>
+    <child link="tool_link"/>
+    <axis xyz="0 0 1"/>
+    <!-- soft spring + generous travel: low k => gentle force/penetration slope so
+         position control can resolve & hold a target force (F=k*delta); the 8 cm
+         travel keeps it from bottoming out (10 N at 200 N/m = 50 mm). -->
+    <limit lower="-0.03" upper="0.0" effort="1000" velocity="1.0"/>
+    <dynamics damping="20.0" friction="0.0"/>
+  </joint>
+  <gazebo reference="tool_joint">
+    <springStiffness>1000.0</springStiffness>
+    <springReference>0.0</springReference>
+    <implicitSpringDamper>true</implicitSpringDamper>
+  </gazebo>
+
+  <!-- Wrist force/torque sensing (Harmonic). The fixed tool_joint gets lumped
+       away in URDF->SDF, so the sensor goes on joint6 (a real revolute joint that
+       survives). gz_ros2_control links it to the matching <sensor name="tcp_fts">
+       state interface above. Force is in the joint6/link6 frame; the controller
+       transforms it to the surface normal. -->
+  <gazebo reference="joint6">
+    <sensor name="tcp_fts" type="force_torque">
+      <always_on>true</always_on>
+      <update_rate>200</update_rate>
+      <gz_frame_id>link6</gz_frame_id>
+      <force_torque>
+        <frame>child</frame>
+        <measure_direction>child_to_parent</measure_direction>
+      </force_torque>
+    </sensor>
+  </gazebo>
+
+  <!-- Self-collision awareness: the arm's own links collide with each other so it
+       can't fold through itself. DART excludes joint-adjacent links automatically,
+       so this only blocks non-adjacent self-intersections. -->
+  <gazebo reference="base_link"><self_collide>true</self_collide></gazebo>
+  <gazebo reference="link1"><self_collide>true</self_collide></gazebo>
+  <gazebo reference="link2"><self_collide>true</self_collide></gazebo>
+  <gazebo reference="link3"><self_collide>true</self_collide></gazebo>
+  <gazebo reference="link4"><self_collide>true</self_collide></gazebo>
+  <gazebo reference="link5"><self_collide>true</self_collide></gazebo>
+  <gazebo reference="link6"><self_collide>true</self_collide></gazebo>
+  <gazebo reference="tool_link"><self_collide>true</self_collide></gazebo>
+
+  <!-- gz_ros2_control system plugin -->
+  <gazebo>
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(find gr_wiping_control)/config/wiping_controllers_gz.yaml</parameters>
+      <!-- position command interface = P-only velocity tracker. Default gain (0.1)
+           tracks fine when EXECUTING a smooth time-parameterized trajectory (the arm
+           moves continuously, so steady-state droop never matters). Raising the gain
+           destabilises it (tested: 1.0 stalls the lift). Reference impl leaves it
+           default and executes via MoveIt ExecuteTrajectory — matched here. -->
+    </plugin>
+  </gazebo>
+
+</robot>

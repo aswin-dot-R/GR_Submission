@@ -1,0 +1,37 @@
+coverage_planner:
+  ros__parameters:
+    # tool pad footprint (m). 100x50 mm per assignment.
+    tool.size_x: 0.100
+    tool.size_y: 0.050
+    # desired overlap fraction between adjacent strokes [0.10..0.20]
+    tool.overlap: 0.15
+    # safety inset from surface edge (m). 15 mm per assignment.
+    keepout_margin: 0.015
+
+    # ---- countertop (raster) — matches gr_scene/scene.yaml ----
+    # scene.yaml: pose=[0.40, 0.00, -0.07], size=[1.20, 0.60, 0.04] → top at z=-0.05
+    counter.frame: "base_link"
+    counter.center: [0.40, 0.00, 0.00]  # slab TOP surface (arm reaches down onto it)
+    counter.size:   [1.20, 0.60]         # 120x60 cm (assignment spec)
+    counter.normal: [0.0, 0.0, 1.0]
+    counter.standoff_z: 0.02             # tool tip 2 cm above the surface
+
+    # ---- mirror (spiral, bonus) — matches gr_scene/scene.yaml ----
+    # scene.yaml: pose=[0.45, 0.00, 0.25], size=[0.02, 0.90, 0.60]
+    # → 90 cm wide (y), 60 cm tall (z) — matches assignment "vertical mirror 90x60"
+    mirror.frame: "base_link"
+    mirror.center: [0.44, 0.00, 0.30]    # front FACE of the pane (x=0.45-0.01), centre height
+    mirror.size:   [0.60, 0.90]          # (height_v, width_u) for Surface.from_vertical
+    mirror.normal: [-1.0, 0.0, 0.0]      # pane normal toward the arm
+    mirror.standoff_n: 0.02              # tool tip 2 cm off the pane
+
+    # ---- execution / trajectory ----
+    cartesian.max_step: 0.005            # MoveIt computeCartesianPath step (m)
+    cartesian.jump_threshold: 0.0
+    cartesian.avoid_collisions: true
+    timeparam.max_vel_scale: 0.30
+    timeparam.max_acc_scale: 0.30
+
+    output.csv_path: "/home/dev/data/coverage_path.csv"
+    output.png_path: "/home/dev/data/coverage_path.png"
+    output.trajectory_path: "/home/dev/data/coverage_trajectory.yaml"

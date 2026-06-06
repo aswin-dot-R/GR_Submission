@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>gr_kinematics</name>
+  <version>0.1.0</version>
+  <description>IK service + reachability heatmap for GR Assignment Section 1</description>
+  <maintainer email="aswinrajan2002@gmail.com">ashie</maintainer>
+  <license>MIT</license>
+
+  <depend>rclpy</depend>
+  <depend>moveit_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>gr_scene</depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-matplotlib</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

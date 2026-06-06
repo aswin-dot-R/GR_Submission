@@ -1,0 +1,54 @@
+# ros2_control config for the Section 3 Gazebo wiping demo.
+# - joint_state_broadcaster : publishes /joint_states
+# - arm_controller          : JointTrajectoryController (position) — the custom
+#                             wiping node streams trajectory points to it
+# The wrist F/T is published on /wrist_ft by the gazebo_ros_ft_sensor plugin
+# (Gazebo Classic's ros2_control FT sensor support is missing), so no FT
+# broadcaster controller is needed here.
+controller_manager:
+  ros__parameters:
+    update_rate: 500  # Hz
+    use_sim_time: true
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - joint1
+      - joint2
+      - joint3
+      - joint4
+      - joint5
+      - joint6
+    # POSITION command (matches the reference impls): Classic gazebo_ros2_control
+    # tracks the position setpoint, so the arm holds EVERY joint against gravity with
+    # no PID tuning (the effort interface left the wrist limp). Contact force comes
+    # from the SOFT surface (kp=5000 in the world): the tool penetrates the compliant
+    # surface and the gazebo_ros_ft_sensor reads F = kp * penetration.
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_partial_joints_goal: true
+    constraints:
+      stopped_velocity_tolerance: 0.0
+      goal_time: 0.0
+    gains:   # all joints hold against gravity (effort limit raised to 300 Nm so the
+             # integral can supply holding torque without saturating)
+      joint1: {p: 300.0, i: 15.0, d: 20.0, i_clamp: 60.0}
+      joint2: {p: 450.0, i: 25.0, d: 45.0, i_clamp: 80.0}
+      joint3: {p: 500.0, i: 35.0, d: 45.0, i_clamp: 150.0}
+      joint4: {p: 500.0, i: 30.0, d: 30.0, i_clamp: 90.0}
+      joint5: {p: 600.0, i: 40.0, d: 40.0, i_clamp: 120.0}
+      joint6: {p: 350.0, i: 20.0, d: 25.0, i_clamp: 60.0}
+
+tcp_fts_broadcaster:
+  ros__parameters:
+    sensor_name: tcp_fts_sensor
+    frame_id: tool_link

@@ -1,0 +1,125 @@
+services:
+  jazzy:
+    build:
+      context: .
+      dockerfile: jazzy.Dockerfile
+      args:
+        USER_UID: "1000"
+        USER_GID: "1000"
+    image: gr_assignment/jazzy:latest
+    container_name: gr_jazzy
+    hostname: gr-jazzy
+    stdin_open: true
+    tty: true
+    network_mode: host
+    ipc: host
+    privileged: true
+    environment:
+      - DISPLAY=${DISPLAY:-:1}
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=/tmp/.docker.xauth
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - ROS_DOMAIN_ID=42
+      - LIBGL_ALWAYS_INDIRECT=0
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /tmp/.docker.xauth:/tmp/.docker.xauth:rw
+      - ${HOME}/.Xauthority:/home/dev/.Xauthority:rw
+      - ../ros2_ws:/home/dev/ros2_ws:rw
+      - ../data:/home/dev/data:rw
+      - ../sim:/workspace/sim:rw
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: bash
+
+  # NOTE: the isaac service was removed after Isaac Sim 4.5 segfaulted on
+  # driver 595 (RTX init, then ROS-bridge dlopen, then early-init).
+  # Section 3 uses PyBullet instead — runs inside the humble container.
+  isaac-disabled:
+    profiles: ["isaac"]   # only starts if you explicitly pass `--profile isaac`
+    image: gr_assignment/isaac-ros2:latest
+    container_name: gr_isaac
+    hostname: gr-isaac
+    stdin_open: true
+    tty: true
+    network_mode: host
+    ipc: host
+    privileged: true
+    runtime: nvidia
+    environment:
+      - ACCEPT_EULA=Y
+      - PRIVACY_CONSENT=Y
+      - OMNI_KIT_ALLOW_ROOT=1
+      - DISPLAY=${DISPLAY:-:1}
+      - XAUTHORITY=/tmp/.docker.xauth
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - ROS_DOMAIN_ID=43   # match the humble container so the bridge sees our nodes
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /tmp/.docker.xauth:/tmp/.docker.xauth:rw
+      - ${HOME}/docker/isaac-sim/cache/kit:/isaac-sim/kit/cache:rw
+      - ${HOME}/docker/isaac-sim/cache/ov:/root/.cache/ov:rw
+      - ${HOME}/docker/isaac-sim/cache/pip:/root/.cache/pip:rw
+      - ${HOME}/docker/isaac-sim/cache/glcache:/root/.cache/nvidia/GLCache:rw
+      - ${HOME}/docker/isaac-sim/cache/computecache:/root/.nv/ComputeCache:rw
+      - ${HOME}/docker/isaac-sim/logs:/root/.nvidia-omniverse/logs:rw
+      - ${HOME}/docker/isaac-sim/data:/root/.local/share/ov/data:rw
+      - ${HOME}/docker/isaac-sim/documents:/root/Documents:rw
+      - ../ros2_ws:/workspace/ros2_ws:rw
+      - ../data:/workspace/data:rw
+      - ../isaac:/workspace/isaac:rw         # USD scenes + Python scripts (host-editable)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: ./runheadless.sh   # default — section3.sh overrides to GUI or python script
+
+  humble:
+    build:
+      context: .
+      dockerfile: humble.Dockerfile
+      args:
+        USER_UID: "1000"
+        USER_GID: "1000"
+    image: gr_assignment/humble:latest
+    container_name: gr_humble
+    hostname: gr-humble
+    stdin_open: true
+    tty: true
+    network_mode: host
+    ipc: host
+    privileged: true
+    environment:
+      - DISPLAY=${DISPLAY:-:1}
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=/tmp/.docker.xauth
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - ROS_DOMAIN_ID=43
+      - LIBGL_ALWAYS_INDIRECT=0
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /tmp/.docker.xauth:/tmp/.docker.xauth:rw
+      - ${HOME}/.Xauthority:/home/dev/.Xauthority:rw
+      - ../ros2_ws:/home/dev/ros2_ws:rw
+      - ../data:/home/dev/data:rw
+      - ../sim:/workspace/sim:rw
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: bash

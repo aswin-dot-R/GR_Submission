@@ -1,0 +1,84 @@
+# ros2_control config for the Section 3 demo on Gazebo Harmonic (gz_ros2_control).
+# gz_ros2_control exposes the force_torque sensor as a state interface, so the
+# standard force_torque_sensor_broadcaster works AND the admittance_controller
+# (compliance / real force control) can read it.
+controller_manager:
+  ros__parameters:
+    update_rate: 500
+    use_sim_time: true
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    tcp_fts_broadcaster:
+      type: force_torque_sensor_broadcaster/ForceTorqueSensorBroadcaster
+
+    # JTC kept for the graze demo (position only, no force control)
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    # Real force control: admittance (compliance) controller. Reads the FT sensor
+    # and makes the arm behave like a spring -> holds a target contact force.
+    admittance_controller:
+      type: admittance_controller/AdmittanceController
+
+tcp_fts_broadcaster:
+  ros__parameters:
+    sensor_name: tcp_fts
+    frame_id: link6
+
+arm_controller:
+  ros__parameters:
+    joints: [joint1, joint2, joint3, joint4, joint5, joint6]
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    allow_partial_joints_goal: true
+    # Relaxed (was 0.0/0.0, which aborts a FollowJointTrajectory goal under the gz
+    # P-tracker's tracking lag). Reference impl executes via the action with
+    # permissive tolerances — matched so smooth time-parameterized execution isn't
+    # rejected, instead of setpoint streaming.
+    constraints:
+      stopped_velocity_tolerance: 0.05
+      goal_time: 5.0
+
+admittance_controller:
+  ros__parameters:
+    joints: [joint1, joint2, joint3, joint4, joint5, joint6]
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    chainable_command_interfaces: [position, velocity]
+    kinematics:
+      plugin_name: kinematics_interface_kdl/KinematicsInterfaceKDL
+      plugin_package: kinematics_interface
+      base: base_link
+      tip: tool_link
+      alpha: 0.0005
+    ft_sensor:
+      name: tcp_fts
+      frame:
+        id: link6
+        external: false
+      filter_coefficient: 0.05
+    control:
+      frame:
+        id: tool_link
+        external: false
+    fixed_world_frame:
+      frame:
+        id: base_link
+        external: false
+    gravity_compensation:
+      frame:
+        id: link6
+        external: false
+      CoG:
+        pos: [0.0, 0.0, 0.02]
+        force: 0.6
+    admittance:
+      selected_axes: [true, true, true, true, true, true]
+      # F = M*a + D*v + S*(x - x_d). Low stiffness in translation -> soft, so a
+      # commanded penetration d gives a controlled force F = S*d (no slam).
+      mass: [5.0, 5.0, 5.0, 0.1, 0.1, 0.1]
+      damping_ratio: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+      stiffness: [200.0, 200.0, 200.0, 5.0, 5.0, 5.0]
+    enable_parameter_update_without_reactivation: false

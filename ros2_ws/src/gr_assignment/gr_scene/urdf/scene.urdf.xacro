@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="gr_scene">
+
+  <xacro:arg name="countertop_size" default="1.20 0.60 0.04"/>
+  <xacro:arg name="countertop_xyz"  default="0.40 0.00 -0.02"/>
+  <xacro:arg name="faucet_size"     default="0.06 0.06 0.30"/>
+  <xacro:arg name="faucet_xyz"      default="0.20 -0.20 0.15"/>
+  <xacro:arg name="mirror_size"     default="0.02 0.90 0.60"/>
+  <xacro:arg name="mirror_xyz"      default="0.95 0.00 0.30"/>
+
+  <xacro:macro name="box_obstacle" params="name size xyz rgba">
+    <link name="${name}">
+      <visual>
+        <geometry><box size="${size}"/></geometry>
+        <material name="${name}_mat"><color rgba="${rgba}"/></material>
+      </visual>
+      <collision>
+        <geometry><box size="${size}"/></geometry>
+      </collision>
+    </link>
+    <joint name="${name}_to_world" type="fixed">
+      <parent link="world"/>
+      <child link="${name}"/>
+      <origin xyz="${xyz}" rpy="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+  <link name="world"/>
+  <xacro:box_obstacle name="countertop" size="$(arg countertop_size)" xyz="$(arg countertop_xyz)" rgba="0.7 0.7 0.7 1.0"/>
+  <xacro:box_obstacle name="faucet"     size="$(arg faucet_size)"     xyz="$(arg faucet_xyz)"     rgba="0.5 0.5 0.6 1.0"/>
+  <xacro:box_obstacle name="mirror"     size="$(arg mirror_size)"     xyz="$(arg mirror_xyz)"     rgba="0.4 0.6 0.9 0.5"/>
+
+</robot>
