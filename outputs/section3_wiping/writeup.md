@@ -29,33 +29,26 @@ Cartesian poses into a time-parameterized joint trajectory (same machinery as Se
 | Surface | Target | Force-hold | In-tol | Speed | Stroke usable (w) |
 |---|---|---|---|---|---|
 | Counter | 10 ± 2 N, 0.15–0.25 m/s | **9.9 ± 0.9 N** | **96 %** | 0.20 m/s ✓ | 48 % |
-| Mirror  | 6 ± 1.5 N, 0.10–0.20 m/s | **5.9 ± 0.8 N** | **93 %** | 0.15 m/s ✓ | 88 % |
+| Mirror  | 6 ± 1.5 N, 0.10–0.20 m/s | **6.0 ± 0.5 N** | **97 %** | 0.15 m/s ✓ | 88 % |
 
 Code: `gr_wiping_control/gr_wiping_control/moveit_wiping.py` (`ros2 run gr_wiping_control
-wiping_moveit`). The full coverage path is planned as **one continuous trajectory** with
-the **Pilz Industrial Motion Planner** sequence capability (`/plan_sequence_path`,
-`blend_radius`) — the proper MoveIt tool for chaining wipe segments without stopping.
+wiping_moveit`). The per-surface coverage strokes are chained into **one continuous
+trajectory** by our own stitching — each stroke joined to the next with collision-checked
+lift-over transits (`scripts/gen_counter_coverage.py`, `gen_mirror_coverage.py`), which are
+also **pad-aware** (the wiping pad isn't in MoveIt's URDF, so the stitcher checks the pad
+box against the mirror/faucet explicitly).
 
-## 2. Live — software admittance loop on the real Gazebo F/T (Classic)
+## 2. Secondary — live software admittance loop on the real Gazebo F/T (Classic)
 
-`scripts/admittance_wipe.py` runs the Pilz path on the **Gazebo Classic** sim and regulates
-penetration from the **real `/wrist_ft`** sensor. Verified **physical** contact (force
-scales linearly with penetration, 0→4→10 N). Two non-obvious fixes were needed:
-`<disableFixedJointLumping>` so the F/T sensor reads the pad's contact (from griffin_ws),
-and a **Jacobian** press on the nominal joint config (`dq = J⁺·[pen·n; 0]`) — full online
-KDL IK is unreliable and never reaches the surface. Force regulated **~8 N**, the 2 N/15 N
-state machine, and **velocity paced into the spec band** (67 % in-band). Plot:
-`live_admittance_classic.png`. Spikes at the most extended configs come from config-varying
-gravity bias the software tare can't fully track.
-
-## 3. Live — the proper `ros2_control admittance_controller` (Harmonic)
-
-`scripts/admittance_controller_wipe.py` drives the off-the-shelf
-`admittance_controller/AdmittanceController` on **Gazebo Harmonic** (`gz_ros2_control`),
-which has a clean **gravity-compensated** F/T sensor and a mass-damper-spring law. The
-**static** compliant force is clean and linear (10 N at 15.5 mm reference penetration, no
-slam). Plot: `ros2control_admittance_harmonic.png`. The *dynamic* wipe is unstable —
-Harmonic's weak position tracker.
+`scripts/admittance_wipe.py` runs the planned coverage path on the **Gazebo Classic** sim
+and regulates penetration from the **real `/wrist_ft`** sensor. Verified **physical** contact
+(force scales linearly with penetration, 0→4→10 N). Two non-obvious fixes were needed:
+`<disableFixedJointLumping>` so the F/T sensor reads the pad's contact, and a **Jacobian**
+press on the nominal joint config (`dq = J⁺·[pen·n; 0]`) — full online KDL IK is unreliable
+and never reaches the surface. Over the full counter + mirror coverage, force regulated
+**~7.7 N (≈96 % in the contact band)**, the 2 N/15 N state machine, and **velocity paced
+into the spec bands**. Plot: `live_admittance_classic.png`. Occasional spikes at the most
+extended configs come from config-varying gravity bias the software tare can't fully track.
 
 ## Honest finding
 

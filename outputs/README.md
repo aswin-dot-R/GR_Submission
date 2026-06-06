@@ -79,16 +79,14 @@ at 15 N** (a bump disturbance triggers it), **faucet skip**. The plots add a 3rd
 | Counter | 10 ± 2 N, 0.15–0.25 m/s | **9.9 ± 0.9 N** | **96 %** | 0.20 m/s ✓ | 48 % |
 | Mirror  | 6 ± 1.5 N, 0.10–0.20 m/s | **6.0 ± 0.5 N** | **97 %** | 0.15 m/s ✓ | 88 % |
 
-### Secondary — live force control in Gazebo (honest physics demos)
-Two live runs against a real Gazebo F/T sensor, both reproducible:
+### Secondary — live force control in Gazebo Classic (honest physics demo)
 - **`live_admittance_classic.png`** — Gazebo Classic, software admittance loop on the real
-  `/wrist_ft`. Real physical contact (verified linear: 0→4→10 N), force regulated **~8 N**,
-  the 2 N / 15 N state machine, **velocity paced into the spec band** (67 % in-band). Spikes
-  at the most extended configs from config-varying gravity bias.
-- **`ros2control_admittance_harmonic.png`** — the **proper** `ros2_control
-  admittance_controller` on Gazebo Harmonic, with built-in gravity compensation. Clean,
-  linear **static** force (10 N at 15.5 mm, no slam), but the *dynamic* wipe is unstable
-  (Harmonic's weak position tracker).
+  `/wrist_ft` sensor, executing the full counter + mirror coverage. Real physical contact,
+  force regulated **~7.7 N (≈96 % in the contact band)**, the 2 N / 15 N state machine, and
+  **velocity paced into the spec bands**. Occasional spikes at the most extended configs from
+  config-varying gravity bias. (Other live-control approaches that were tried but didn't pan
+  out — e.g. the Gazebo Harmonic `ros2_control admittance_controller`, clean statically but
+  unstable in motion — are written up in `SECTION3_ATTEMPTS.md`, not shipped as deliverables.)
 
 ### Why the software model is primary — the reference implementations agree
 How the three provided reference implementations actually delivered Section 3:

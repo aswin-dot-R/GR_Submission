@@ -7,7 +7,7 @@ see [`REPRODUCE.md`](REPRODUCE.md) for the exact build/run commands.
 | | |
 |---|---|
 | **Arm** | AgileX Piper (6-DOF), reach ≈ 0.5 m |
-| **Stack** | ROS 2 Jazzy · MoveIt 2 + Pilz Industrial Motion Planner · Gazebo Classic + Harmonic · ros2_control |
+| **Stack** | ROS 2 Jazzy + MoveIt 2 (kinematics / coverage / wiping) · ROS 2 Humble + Gazebo Classic + gazebo_ros2_control (live wiping demo) |
 | **Our packages** | `gr_scene` (scene) · `gr_kinematics` (IK + reachability) · `gr_coverage` (coverage) · `gr_wiping_control` (wiping) — all in `ros2_ws/src/gr_assignment/` |
 | **Deliverables** | [`outputs/`](outputs/) — plots, CSVs, trajectories, per-section write-ups |
 
@@ -16,8 +16,8 @@ see [`REPRODUCE.md`](REPRODUCE.md) for the exact build/run commands.
 ## The scene (how to replicate)
 
 A wiping station defined entirely in `gr_scene/config/scene.yaml` (loaded into MoveIt's
-planning scene) and mirrored in the Gazebo worlds
-(`gr_wiping_control/worlds/wiping.world` = Classic, `wiping_gz.sdf` = Harmonic):
+planning scene) and mirrored in the Gazebo Classic world
+(`gr_wiping_control/worlds/wiping.world`):
 
 - **Robot** mounted **on the countertop** — the base sits flush on the slab, so the
   **countertop top is at z = 0** (the robot base level).
@@ -94,8 +94,9 @@ the contact stiffness/damping, and Gaussian noise gives a realistic sensor look.
 **admittance loop** reads this `F` and drives the commanded penetration to hold the target;
 **MoveIt** (`compute_ik` / `compute_cartesian_path`) turns the force-regulated Cartesian
 poses into a time-parameterized joint trajectory (same machinery as Sections 1 & 2 — no
-physics engine needed, exactly as "simulated" implies). The full **Pilz Industrial Motion
-Planner** sequence capability chains the coverage path into one continuous trajectory.
+physics engine needed, exactly as "simulated" implies). The per-surface coverage strokes
+are stitched into one continuous, collision-checked trajectory (lift-over transits between
+strokes) for the Gazebo demo.
 
 State machine: `APPROACH` (F=0) → `CONTACT` (|F|>2 N, admittance holds target) → `BACKOFF`
 (|F|>15 N, retract; a bump disturbance triggers it) → `SKIP` (lift over the faucet).
@@ -103,27 +104,19 @@ State machine: `APPROACH` (F=0) → `CONTACT` (|F|>2 N, admittance holds target)
 | Surface | Target | Force-hold | In-tol | Speed |
 |---|---|---|---|---|
 | Counter | 10 ± 2 N, 0.15–0.25 m/s | **9.9 ± 0.9 N** | **96 %** | 0.20 m/s ✓ |
-| Mirror  | 6 ± 1.5 N, 0.10–0.20 m/s | **5.9 ± 0.8 N** | **93 %** | 0.15 m/s ✓ |
+| Mirror  | 6 ± 1.5 N, 0.10–0.20 m/s | **6.0 ± 0.5 N** | **97 %** | 0.15 m/s ✓ |
 
 Plots (`wiping_log.png`, `wiping_log_mirror.png`) show force-vs-time, velocity-vs-time, and a
 third **manipulability-vs-time** panel. Code: `gr_wiping_control/moveit_wiping.py`.
 
-### (2) LIVE — software admittance loop on a REAL Gazebo F/T sensor (Classic)
-`scripts/admittance_wipe.py` runs the coverage path on the **Gazebo Classic** physics sim and
-regulates penetration from the **real `/wrist_ft`** sensor (a `gazebo_ros_ft_sensor`). We
-verified genuine **physical** contact (force scales linearly with penetration, 0→4→10 N).
-Two non-obvious fixes were needed: `<disableFixedJointLumping>` so the F/T sensor reads the
-pad's contact, and a **Jacobian** press on the nominal joint config (full online KDL IK was
-unreliable). Force regulated **~8 N**, the 2 N/15 N state machine, **velocity paced into the
-spec band** (~67 % in-band). Plot: `live_admittance_classic.png`.
-
-### (3) LIVE — the proper `ros2_control admittance_controller` (Harmonic)
-`scripts/admittance_controller_wipe.py` drives the off-the-shelf
-`admittance_controller/AdmittanceController` on **Gazebo Harmonic** (`gz_ros2_control`), which
-has a clean **gravity-compensated** F/T sensor and a mass-damper-spring law. The **static**
-compliant force is clean and linear (10 N at 15.5 mm reference penetration, no slam). The
-*dynamic* wipe is unstable — Harmonic's weak position tracker. Plot:
-`ros2control_admittance_harmonic.png`.
+### (2) SECONDARY — live software admittance loop on a REAL Gazebo F/T sensor (Classic)
+`scripts/admittance_wipe.py` runs the full counter + mirror coverage path on the **Gazebo
+Classic** physics sim and regulates penetration from the **real `/wrist_ft`** sensor (a
+`gazebo_ros_ft_sensor`). We verified genuine **physical** contact (force scales linearly with
+penetration, 0→4→10 N). Two non-obvious fixes were needed: `<disableFixedJointLumping>` so the
+F/T sensor reads the pad's contact, and a **Jacobian** press on the nominal joint config (full
+online KDL IK was unreliable). Force regulated **~7.7 N (≈96 % in the contact band)**, the
+2 N/15 N state machine, **velocity paced into the spec bands**. Plot: `live_admittance_classic.png`.
 
 ### Honest finding (why the software model is the primary)
 **Clean physics-sim force-holding at 10/6 N with a position-controlled arm is not cleanly
@@ -131,13 +124,14 @@ achievable.** We confirmed this against the difficulty directly, and it is consi
 reference implementations we were able to inspect: the ones that hit spec use a **software
 contact model** (like our primary), while a Gazebo-physics attempt holds only ~1–2 N with
 sub-spec velocity. The PDF asks for a **simulated** F/T sensor, which the software spring-
-damper model realizes cleanly — it is the spec-meeting delivery, not a fallback. We
-additionally provide the two live physics demos as honest, reproducible bonuses.
+damper model realizes cleanly — it is the spec-meeting delivery, not a fallback. The Gazebo
+Classic live admittance loop is provided as an honest, reproducible bonus. (A Gazebo Harmonic
+`ros2_control admittance_controller` was also tried — clean statically, unstable in motion —
+and is **not** shipped as a deliverable; see `SECTION3_ATTEMPTS.md`.)
 
 **Deliverables:** `wiping_log.png` / `wiping_log_mirror.png` (force/velocity/dexterity),
 `wiping_log*.csv`, `wiping_trajectory*.yaml`, `live_admittance_classic.png`,
-`ros2control_admittance_harmonic.png`, `wiping_demo.gif`, `section3_execution.mp4`,
-`writeup.md`.
+`wiping_demo.gif`, `section3_execution.mp4`, `writeup.md`.
 
 ---
 
